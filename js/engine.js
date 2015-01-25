@@ -64,7 +64,7 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-        reset();
+        resetGame();
         lastTime = Date.now();
         main();
     }
@@ -80,7 +80,36 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
+        checkWin();
+    }
+
+    // For each enemy, check if it collides with player
+    function checkCollisions() {
+        for (var i = 0; i < allEnemies.length; i++) {
+            if (collided(player, allEnemies[i])) {
+                resetGame();
+                return;
+            }
+        };
+    }
+
+    // Check if player reaches the win condition (at the river)
+    function checkWin() {
+        if (player.row === 0) {
+            resetGame();
+            return;
+        }
+    }
+
+    /* If player reaches the river or an enemy hits him then bring all to 
+     * the original state of the game.
+     */
+    function resetGame() {
+        allEnemies.forEach(function(enemy) {
+            enemy.reset();
+        });
+        player.reset();
     }
 
     /* This is called by the update function  and loops through all of the
@@ -153,14 +182,6 @@ var Engine = (function(global) {
         });
 
         player.render();
-    }
-
-    /* This function does nothing but it could have been a good place to
-     * handle game reset states - maybe a new game menu or a game over screen
-     * those sorts of things. It's only called once by the init() method.
-     */
-    function reset() {
-        // noop
     }
 
     /* Go ahead and load all of the images we know we're going to need to
